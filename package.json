@@ -1,0 +1,25 @@
+{
+  "name": "fcc-header-parse",
+  "version": "0.0.1",
+  "description": "Returns information about you from your http request",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "express": "^4.16.2",
+    "mongodb": "^3.0.3"
+  },
+  "engines": {
+    "node": "9.x"
+  },
+  "repository": "https://github.com/errpr/fcc-url-shortener",
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "express"
+  ],
+  "author": "Steven Branson <steve@diodeware.com>",
+  "private": false
+}
