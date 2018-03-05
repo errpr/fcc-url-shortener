@@ -9,6 +9,8 @@ app.get("/new/*", function (request, response) {
   mongoClient.connect(dbUrl, (error, client) => {
     if(error) {
       console.log("Database error: " + error);
+      response.status(503).send("Internal Server Error");
+      client.close();
     } else {
       let db = client.db('fcc-errpr');
       let urls = db.collection("urls");
@@ -21,30 +23,40 @@ app.get("/new/*", function (request, response) {
           });
           client.close();
         } else {
-          response.json(result);
-          client.close();
-          // urlsCounter.findOneAndUpdate({"name":"urlCounter"}, {$inc:{"counterValue":1}}).then(result2 => {
-          //   let counter = result2.value.counterValue;
-          //   urls.insertOne({"url": request.params[0], "short_url": counter }).then(result3 => {
-          //     response.json({"original_url": request.params[0], "short_url": appUrl + counter });
-          //     client.close();
-          //   });
-          // }).catch(err => client.close());
+          urlsCounter.findOneAndUpdate({"name":"urlCounter"}, {$inc:{"counterValue":1}}).then(result2 => {
+            let counter = result2.value.counterValue;
+            urls.insertOne({"url": request.params[0], "short_url": counter }).then(result3 => {
+              response.json({"original_url": request.params[0], "short_url": appUrl + counter });
+              client.close();
+            });
+          }).catch(err => client.close());
         }
       });
-      // if(url['0']) {
-      //   response.json({
-      //     "original_url" : url["0"]["original_url"],
-      //     "short_url" : appUrl + url["0"]["id"]
-      //   });
-      // } else {
-      //   let counter;
-      //   urlsCounter.findOneAndUpdate({"name":"urlCounter"}, {$inc:{"counterValue":1}}).then(result => {
+    }
+  });
+});
 
-      //   });
-      //   urls.insertOne({})
-      // }
-
+app.get("/:short", function (request, response) {
+  mongoClient.connect(dbUrl, (error, client) => {
+    if(error) {
+      console.log("Database error: " + error);
+      response.status(503).send("Internal Server Error");
+      client.close();
+    } else {
+      let db = client.db('fcc-errpr');
+      let urls = db.collection("urls");
+      urls.findOne({ "short_url" : parseFloat(request.params.short) }).then(result => {
+        if(result) {
+          response.redirect(result["url"]);
+        } else {
+          response.status(404).send("Not Found");
+        }
+        client.close();
+      }).catch(err => { 
+        console.log(err); 
+        response.status(503).send("Internal Server Error"); 
+        client.close(); 
+      });
     }
   });
 });
